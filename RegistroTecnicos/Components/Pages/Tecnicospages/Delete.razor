@@ -1,0 +1,88 @@
+﻿@page "/Tecnico/Delete/{TecnicoId:int}"
+@using RegistroTecnicos.Models
+@using RegistroTecnicos.Services
+@inject TecnicoService tecnicoService
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Eliminar Técnico</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white text-center py-3">
+            <h3><strong>Eliminar Técnico</strong></h3>
+        </div>
+
+        @if (tecnico != null)
+        {
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <h4 class="text-danger">¿Estás seguro de que quieres eliminar este técnico?</h4>
+                </div>
+
+                <div class="card shadow-sm border-secondary mb-4">
+                    <div class="card-header bg-light text-center">
+                        <h5><strong>Datos del Técnico</strong></h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><strong>TécnicoId:</strong> @tecnico.TecnicoId</li>
+                            <li class="list-group-item"><strong>Nombres:</strong> @tecnico.Nombres</li>
+                            <li class="list-group-item"><strong>Sueldo por Hora:</strong> @tecnico.Sueldohora</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center">
+                    <button type="button" class="btn btn-outline-danger mx-2" @onclick="EliminarTecnico">
+                        <i class="bi bi-trash-fill"></i> Eliminar
+                    </button>
+                    <button type="button" class="btn btn-outline-primary mx-2" @onclick="Retroceder">
+                        <i class="bi bi-box-arrow-left"></i> Retroceder
+                    </button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="card-body text-center">
+                <h5 class="text-danger">Técnico no encontrado.</h5>
+                <button type="button" class="btn btn-outline-primary" @onclick="Retroceder">
+                    <i class="bi bi-box-arrow-left"></i> Volver
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int TecnicoId { get; set; }
+    public Tecnicos? tecnico { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Cargar los datos del técnico
+        if (TecnicoId != 0)
+        {
+            tecnico = await tecnicoService.Buscar(TecnicoId);
+        }
+    }
+
+    private async Task EliminarTecnico()
+    {
+        if (TecnicoId != 0 && tecnico != null)
+        {
+            var eliminado = await tecnicoService.Eliminar(TecnicoId);
+            if (eliminado)
+            {
+                Retroceder();
+            }
+        }
+    }
+
+    private void Retroceder()
+    {
+        navigationManager.NavigateTo("/Tecnico/Index");
+    }
+}

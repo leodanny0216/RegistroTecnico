@@ -58,7 +58,6 @@ public class TecnicoService(IDbContextFactory<Contexto> DbFactory)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
         return await contexto.Tecnicos
-
             .AsNoTracking()
             .FirstOrDefaultAsync(t => t.TecnicoId == id);
     }

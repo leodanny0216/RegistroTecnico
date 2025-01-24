@@ -5,6 +5,8 @@ namespace RegistroTecnicos.Models;
 
 public class Clientes
 {
+    internal int clientesId;
+
     [Key]
     public int ClienteId { get; set; }
 
@@ -29,4 +31,5 @@ public class Clientes
     public int TecnicoId { get; set; }
 
     public Tecnicos? TecnicosId { get; set; }
+   
 }

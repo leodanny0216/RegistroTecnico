@@ -14,6 +14,7 @@ builder.Services.AddDbContextFactory<Contexto>(o => o.UseSqlServer(ConStr));
 
 builder.Services.AddScoped<TecnicoService>();
 builder.Services.AddBlazorBootstrap();
+builder.Services.AddScoped<ClientesServices>();
 
 var app = builder.Build();
 

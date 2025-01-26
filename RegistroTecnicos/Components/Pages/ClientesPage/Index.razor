@@ -1,0 +1,135 @@
+﻿@page "/Clientes/Index"
+@inject ClientesServices clienteService
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Consulta de Clientes</PageTitle>
+
+<div class="card-header bg-primary text-center text-white py-2 rounded">
+    <h3 class="font-weight-bold">Consulta de Clientes</h3>
+</div>
+
+<div class="row mb-3 align-items-end">
+    <!-- Filtro -->
+    <div class="col-md-3">
+        <label for="Filtro" class="form-label">Filtrar por:</label>
+        <select @bind="filtro" class="form-select">
+            <option value="ID">ClienteId</option>
+            <option value="Nombres">Nombres</option>
+            <option value="WhatsApp">WhatsApp</option>
+        </select>
+    </div>
+
+    <!-- Campo de búsqueda -->
+    <div class="col-md-6">
+        <label for="ValorFiltro" class="form-label">Búsqueda:</label>
+        <div class="input-group">
+            <input @bind="valorFiltro" class="form-control" placeholder="Buscar" />
+            <button @onclick="Buscar" class="btn btn-outline-primary" type="button">
+                <span class="bi bi-search"></span> Buscar
+            </button>
+        </div>
+    </div>
+
+    <!-- Botón para crear nuevo cliente -->
+    <div class="col-md-3 text-end">
+        <a href="/Cliente/Create" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Crear
+        </a>
+    </div>
+</div>
+
+<!-- Tabla de clientes -->
+<table class="table table-bordered text-center">
+    <thead class="bg-primary text-white">
+        <tr>
+            <th>ClienteId</th>
+            <th>Nombres</th>
+            <th>WhatsApp</th>
+            <th>Ver</th>
+            <th>Editar</th>
+            <th>Eliminar</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (ListaClientes != null && ListaClientes.Any())
+        {
+            @foreach (var cliente in ListaClientes)
+            {
+                <tr>
+                    <td>@cliente.ClienteId</td>
+                    <td>@cliente.Nombres</td>
+                    <td>
+                        <a href="/Cliente/Details/@cliente.ClienteId" class="btn btn-outline-primary">
+                            <span class="bi bi-info-circle-fill"></span>
+                        </a>
+                    </td>
+                    <td>
+                        <a href="/Cliente/Edit/@cliente.ClienteId" class="btn btn-outline-success">
+                            <span class="bi bi-pencil-fill"></span>
+                        </a>
+                    </td>
+                    <td>
+                        <a href="/Cliente/Delete/@cliente.ClienteId" class="btn btn-outline-danger">
+                            <span class="bi bi-trash-fill"></span>
+                        </a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6">No se encontraron clientes.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="card-footer text-start">
+    <p>Total de Clientes: @ListaClientes?.Count ?? 0</p>
+</div>
+
+@code {
+    public List<Clientes> ListaClientes { get; set; } = new List<Clientes>();
+    public string filtro { get; set; } = "ID";
+    public string valorFiltro { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Carga inicial de clientes
+        ListaClientes = await clienteService.Listar(c => true);
+    }
+
+    public async Task Buscar()
+    {
+        if (string.IsNullOrWhiteSpace(valorFiltro))
+        {
+            ListaClientes = await clienteService.Listar(c => true);
+        }
+        else
+        {
+            switch (filtro)
+            {
+                case "ID":
+                    if (int.TryParse(valorFiltro, out int clienteId))
+                    {
+                        ListaClientes = await clienteService.Listar(c => c.ClienteId == clienteId);
+                    }
+                    else
+                    {
+                        ListaClientes.Clear(); // Vaciar la lista si el ID no es válido
+                    }
+                    break;
+
+                case "Nombres":
+                    ListaClientes = await clienteService.Listar(c => c.Nombres.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase));
+                    break;
+
+                default:
+                    ListaClientes = await clienteService.Listar(c => true);
+                    break;
+            }
+        }
+    }
+}

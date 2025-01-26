@@ -1,0 +1,129 @@
+﻿@page "/Cliente/Create"
+@using RegistroTecnicos.Models
+@inject ClientesServices clienteService
+@inject NavigationManager navigationManager
+@inject ToastService toastService
+@inject TecnicoService tecnicoService
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components
+
+<EditForm Model="clientes" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="card-header bg-primary text-center text-white py-2 rounded">
+        <h3 style="font-weight: bold;">Registro de Clientes</h3>
+    </div>
+
+    <div class="card-body">
+         @* ClienteId *@
+        <div class="mb-3">
+            <label for="ClienteId" class="form-label">ClienteId:</label>
+            <InputNumber @bind-Value="clientes.ClienteId" class="form-control" />
+        </div>
+
+        @* Fechalngreso *@
+        <div class="mb-3">
+            <label for="Fechalngreso" class="form-label">Fechalngreso:</label>
+            <InputDate @bind-Value="clientes.Fechalngreso" class="form-control" />
+        </div>
+
+         @* Nombres *@
+        <div class="mb-3">
+            <label for="Nombres" class="form-label">Nombres:</label>
+            <InputText @bind-Value="clientes.Nombres" class="form-control" />
+        </div>
+
+         @* Direccion *@
+        <div class="mb-3">
+            <label for="Direccion" class="form-label">Direccion :</label>
+            <InputText @bind-Value="clientes.Direccion" class="form-control" />
+        </div>
+
+         @* Rnc *@
+        <div class="mb-3">
+            <label for="Rnc" class="form-label">Rnc :</label>
+            <InputText @bind-Value="clientes.Rnc" class="form-control" />
+        </div>
+
+         @* LimiteCredito *@
+        <div class="mb-3">
+            <label for="LimiteCredito" class="form-label">LimiteCredito :</label>
+            <InputNumber @bind-Value="clientes.LimiteCredito" class="form-control" />
+        </div>
+
+        @* TecnicoId (con InputSelect) *@
+        <div class="mb-3">
+            <label for="TecnicoId" class="form-label">Técnico:</label>
+            <InputSelect @bind-Value="clientes.TecnicoId" class="form-control">
+                <option value="" disabled>-- Seleccione un técnico --</option>
+                @foreach (var tecnico in ListaTecnicos)
+                {
+                    <option value="@tecnico.TecnicoId">@tecnico.Nombres</option>
+                }
+            </InputSelect>
+        </div>
+    </div>
+
+    <div class="card-footer d-flex justify-content-lg-center text-center">
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-primary ml-2" @onclick="Nuevo">
+                <span class="bi bi-plus"></span> Nuevo
+            </button>
+            <button type="submit" class="btn btn-outline-success ml-2">
+                <span class="bi bi-check-circle-fill"></span> Guardar
+            </button>
+            <button type="button" class="btn btn-outline-danger" @onclick="Retroceder">
+                <span class="bi bi-arrow-bar-left"></span> Retroceder
+            </button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    public Clientes clientes { get; set; } = new Clientes();
+    public List<Tecnicos> ListaTecnicos { get; set; } = new List<Tecnicos>();
+    public Tecnicos tecnicos { get; set; } = new Tecnicos();
+
+    public async Task Nuevo()
+    {
+        clientes = new Clientes();
+    }
+
+    public async Task<bool> Validar()
+    {
+        var clientesExistentes = await clienteService.Listar(c => 
+            c.Nombres.ToLower() == clientes.Nombres.ToLower() && 
+            c.ClienteId != clientes.ClienteId);
+
+        return clientesExistentes.Count > 0;
+    }
+
+    public async Task Guardar()
+    {
+        if (await Validar())
+        {
+            return;
+        }
+
+        var guardado = await clienteService.Guardar(clientes);
+        if (guardado)
+        {
+            Nuevo();
+            Retroceder();
+        }
+        else
+        {
+            // Manejo de error si no se guardó correctamente
+        }
+    }
+
+    public void Retroceder()
+    {
+        navigationManager.NavigateTo("/Cliente/Index");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+    }
+}

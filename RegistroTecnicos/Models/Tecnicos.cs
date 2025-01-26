@@ -11,4 +11,6 @@ public class Tecnicos
 
     [Required(ErrorMessage = "Llenar este campo es hobligatorio.")]
     public decimal? Sueldohora { get; set; }
+
+    public Clientes ? Clientes  { get; set; }
 }

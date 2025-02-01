@@ -12,7 +12,6 @@
     </div>
 
     <div class="row mb-3 align-items-end">
-       
         <div class="col-md-3">
             <label for="Filtro" class="form-label">Filtrar por:</label>
             <select @bind="filtro" class="form-select">
@@ -21,7 +20,6 @@
             </select>
         </div>
 
-       
         <div class="col-md-6">
             <label for="ValorFiltro" class="form-label">Búsqueda:</label>
             <div class="input-group">
@@ -32,7 +30,6 @@
             </div>
         </div>
 
-     
         <div class="col-md-3 text-end">
             <a href="/Cliente/Create" class="btn btn-success">
                 <i class="bi bi-plus-circle"></i> Crear
@@ -40,7 +37,6 @@
         </div>
     </div>
 
-   
     <table class="table table-bordered text-center">
         <thead class="bg-primary text-white">
             <tr>
@@ -51,7 +47,7 @@
                 <th>Direccion</th>
                 <th>Rnc</th>
                 <th>LimiteCredito</th>
-                <th>Editar </th>
+                <th>Editar</th>
                 <th>Eliminar</th>
             </tr>
         </thead>
@@ -62,19 +58,17 @@
                 {
                     <tr>
                         <td>@cliente.ClienteId</td>
-                        <td>@cliente.Tecnicos?.Nombres</td>
+                        <td>@cliente.Tecnicos?.Nombres</td> <!-- Muestra el nombre del técnico -->
                         <td>@cliente.Nombres</td>
-                        <td>@cliente.Fechalngreso</td>
+                        <td>@cliente.Fechalngreso.()</td>
                         <td>@cliente.Direccion</td>
                         <td>@cliente.Rnc</td>
-                        <td>@cliente.LimiteCredito</td>
-                        
+                        <td>@cliente.LimiteCredito.ToString("C")</td>
                         <td>
                             <a href="/Cliente/Edit/@cliente.ClienteId" class="btn btn-outline-primary">
                                 <span class="bi bi-info-circle-fill"></span>
                             </a>
                         </td>
-                        
                         <td>
                             <a href="/Cliente/Delete/@cliente.ClienteId" class="btn btn-outline-danger">
                                 <span class="bi bi-trash-fill"></span>
@@ -83,7 +77,6 @@
                     </tr>
                 }
             }
-            
         </tbody>
     </table>
 
@@ -92,24 +85,21 @@
     </div>
 </div>
 
-
 @code {
     public List<Clientes> ListaClientes { get; set; } = new List<Clientes>();
     public string filtro { get; set; } = "ID";
     public string valorFiltro { get; set; } = "";
-    public Tecnicos? tecnico { get; set; }
-    public List<Tecnicos> ListaTecnicos { get; set; } = new List<Tecnicos>();
+
     protected override async Task OnInitializedAsync()
     {
-        
-        ListaClientes = await clienteService.Listar(c => true);
+        ListaClientes = await clienteService.ListarConTecnicos(); // Carga clientes con técnicos
     }
 
     public async Task Buscar()
     {
         if (string.IsNullOrWhiteSpace(valorFiltro))
         {
-            ListaClientes = await clienteService.Listar(c => true);
+            ListaClientes = await clienteService.ListarConTecnicos();
         }
         else
         {
@@ -122,7 +112,7 @@
                     }
                     else
                     {
-                        ListaClientes.Clear(); 
+                        ListaClientes.Clear();
                     }
                     break;
 
@@ -131,7 +121,7 @@
                     break;
 
                 default:
-                    ListaClientes = await clienteService.Listar(c => true);
+                    ListaClientes = await clienteService.ListarConTecnicos();
                     break;
             }
         }

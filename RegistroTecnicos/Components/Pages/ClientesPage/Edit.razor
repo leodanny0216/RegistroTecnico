@@ -6,38 +6,68 @@
 
 <EditForm Model="clientes" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center">
+                <h5 class="card-title">Registro de clientes</h5>
+            </div>
+            <div class="card-body">
+                <!-- ClienteId -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>ClienteId</strong></label>
+                    <InputNumber class="form-control" @bind-Value="clientes.ClienteId" readonly />
+                </div>
 
-    <div class="card-header bg-primary text-center text-white py-2 rounded">
-        <h3 style="font-weight: bold;" class="font-weight-bold">Modificar Cliente</h3>
-    </div>
+                <!-- Nombres -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>Nombres</strong></label>
+                    <InputText class="form-control" @bind-Value="clientes.Nombres" />
+                   
+                </div>
 
-    <div class="card-body">
-       @*   ClienteId  *@
-        <div class="mb-3">
-            <label for="ClienteId" class="form-label">ClienteId:</label>
-            <InputNumber @bind-Value="clientes.ClienteId" class="form-control" Disabled />
-        </div>
+                <!-- Dirección -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>Dirección</strong></label>
+                    <InputText class="form-control" @bind-Value="clientes.Direccion" />
+                </div>
 
-      @*  Nombres  *@
-        <div class="mb-3">
-            <label for="Nombres" class="form-label">Nombres:</label>
-            <InputText @bind-Value="clientes.Nombres" class="form-control" />
-        </div>
+                <!-- Fecha de ingreso -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>Fecha de Ingreso</strong></label>
+                    <InputDate class="form-control" @bind-Value="clientes.Fechalngreso" />
+                </div>
 
-       
-    </div>
+                <!-- Rnc -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>RNC</strong></label>
+                    <InputText class="form-control" @bind-Value="clientes.Rnc" />
+                </div>
 
-    <div class="card-footer d-flex justify-content-lg-center text-center">
-        <div class="btn-group">
-            <button type="button" class="btn btn-outline-primary ml-2" @onclick="Nuevo">
-                <span class="bi bi-plus"></span> Nuevo
-            </button>
-            <button type="submit" class="btn btn-outline-success ml-2">
-                <span class="bi bi-check-circle-fill"></span> Guardar
-            </button>
-            <button type="button" class="btn btn-outline-danger ml-2" @onclick="Retroceder">
-                <span class="bi bi-arrow-bar-left"></span> Retroceder
-            </button>
+                <!-- Límite de crédito -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>Límite crédito</strong></label>
+                    <InputNumber class="form-control" @bind-Value="clientes.LimiteCredito" />
+                </div>
+
+                <!-- Lista de técnicos encargados -->
+                <div class="mb-3">
+                    <label><strong>Técnico encargado</strong></label>
+                    <InputSelect class="form-control form-select" @bind-Value="clientes.TecnicoId">
+                        <option value="0" selected disabled>Seleccione un Técnico</option>
+                        @foreach (var tecnico in ListaTecnicos)
+                        {
+                            <option value="@tecnico.TecnicoId">@tecnico.Nombres</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <!-- Footer -->
+                <div class="card-footer mt-2 text-center">
+                    <button type="button" class="btn btn-outline-success" @onclick="Nuevo">Nuevo</button>
+                    <button type="submit" class="btn btn-primary bi bi-floppy">Guardar</button>
+                    <a href="/Cliente" class="btn btn-secondary"><span class="bi bi-arrow-left"></span> Retroceder</a>
+                </div>
+            </div>
         </div>
     </div>
 </EditForm>
@@ -47,6 +77,7 @@
     public int ClienteId { get; set; }
     public Models.Clientes clientes { get; set; } = new Models.Clientes();
     private bool Existe = false;
+    public List<Tecnicos> ListaTecnicos { get; set; } = new List<Tecnicos>();
 
     protected override async Task OnInitializedAsync()
     {

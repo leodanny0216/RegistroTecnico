@@ -5,112 +5,105 @@ using System.Linq.Expressions;
 
 namespace RegistroTecnicos.Services;
 
-public class ClientesServices(IDbContextFactory<Contexto> DbFactory)
+public class ClientesServices
 {
-    //Metodo Existe
+    private readonly IDbContextFactory<Contexto> DbFactory;
+
+    public ClientesServices(IDbContextFactory<Contexto> dbFactory)
+    {
+        DbFactory = dbFactory;
+    }
+
+    // Método para verificar si un cliente existe por ID
     public async Task<bool> Existe(int id)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
-        return await contexto.Clientes
-            .AnyAsync(t => t.ClienteId == id);
+        return await contexto.Clientes.AnyAsync(t => t.ClienteId == id);
     }
 
     public async Task<bool> ExisteNombreClientes(string nombre, int id)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
         return await contexto.Clientes
-            .AnyAsync(t => t.Nombres.ToLower().Equals(nombre.ToLower()) && t.ClienteId != id);
+            .AnyAsync(t => t.Nombres.ToLower() == nombre.ToLower() && t.ClienteId != id);
     }
 
     public async Task<bool> ExisteRncClientes(string rnc, int id)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
         return await contexto.Clientes
-            .AnyAsync(t => t.Rnc.Equals(rnc) && t.ClienteId != id);
+            .AnyAsync(c => c.Rnc.ToLower() == rnc.ToLower() && c.ClienteId != id);
     }
 
-    private async Task<bool> ValidarCliente(Clientes clientes)
+    private async Task<bool> ValidarCliente(Clientes cliente)
     {
-        if (await ExisteNombreClientes(clientes.Nombres ?? string.Empty, clientes.ClienteId))
-        {
+        if (await ExisteNombreClientes(cliente.Nombres ?? string.Empty, cliente.ClienteId))
             throw new Exception("Ya existe un cliente con este nombre.");
-        }
 
-        if (await ExisteRncClientes(clientes.Rnc ?? string.Empty, clientes.ClienteId))
-        {
+        if (await ExisteRncClientes(cliente.Rnc ?? string.Empty, cliente.ClienteId))
             throw new Exception("Ya existe un cliente con este RNC.");
-        }
 
-        if (string.IsNullOrWhiteSpace(clientes.Nombres) || string.IsNullOrWhiteSpace(clientes.Rnc) || string.IsNullOrWhiteSpace(clientes.Direccion))
-        {
+        if (string.IsNullOrWhiteSpace(cliente.Nombres) ||
+            string.IsNullOrWhiteSpace(cliente.Rnc) ||
+            string.IsNullOrWhiteSpace(cliente.Direccion))
             throw new Exception("Todos los campos son obligatorios.");
-        }
 
-        if (clientes.Rnc.Length > 10)
-        {
+        if (cliente.Rnc.Length > 10)
             throw new Exception("El RNC no puede tener más de 10 caracteres.");
-        }
 
         return true;
     }
 
-    //Metodo Insertar
-    private async Task<bool> Insertar(Clientes clientes)
+    // Método Insertar
+    private async Task<bool> Insertar(Clientes cliente)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
-        await ValidarCliente(clientes);
-        contexto.Clientes.Add(clientes);
+        await ValidarCliente(cliente);
+        contexto.Clientes.Add(cliente);
         return await contexto.SaveChangesAsync() > 0;
     }
 
-    //Metodo Modificar 
-    private async Task<bool> Modificar(Clientes clientes)
+    // Método Modificar
+    private async Task<bool> Modificar(Clientes cliente)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
-        await ValidarCliente(clientes);
-        contexto.Update(clientes);
+        await ValidarCliente(cliente);
+        contexto.Clientes.Update(cliente);
         return await contexto.SaveChangesAsync() > 0;
     }
 
-    //Metodo Guardar
-    public async Task<bool> Guardar(Clientes clientes)
+    // Método Guardar
+    public async Task<bool> Guardar(Clientes cliente)
     {
-        await using var contexto = await DbFactory.CreateDbContextAsync();
-        if (!await Existe(clientes.ClienteId))
-            return await Insertar(clientes);
-        else
-            return await Modificar(clientes);
+        return await Existe(cliente.ClienteId) ? await Modificar(cliente) : await Insertar(cliente);
     }
 
-    //Metodo Eliminar 
+    // Método Eliminar
     public async Task<bool> Eliminar(int id)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
-        var EliminarClientes = await contexto.Clientes
-            .Include(t => t.Tecnicos)
-            .Where(t => t.ClienteId == id)
-            .ExecuteDeleteAsync();
-        return EliminarClientes > 0;
+        var cliente = await contexto.Clientes.FindAsync(id);
+        if (cliente != null)
+        {
+            contexto.Clientes.Remove(cliente);
+            return await contexto.SaveChangesAsync() > 0;
+        }
+        return false;
     }
 
-    //Metodo Buscar 
+    // Método Buscar
     public async Task<Clientes?> Buscar(int id)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
-        return await contexto.Clientes
-            .AsNoTracking()
-            .FirstOrDefaultAsync(t => t.ClienteId == id);
+        return await contexto.Clientes.AsNoTracking().FirstOrDefaultAsync(t => t.ClienteId == id);
     }
 
-    //Metodo Listar
-    public async Task<List<Clientes>> Listar(Expression<Func<Clientes, bool>> criterio)
+    // Método Listar
+    public async Task<List<Clientes>> Listar(Expression<Func<Clientes, bool>>? criterio = null)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
-        return await contexto.Clientes
-            .Include(t => t.Tecnicos)           
-            .AsNoTracking()
-            .Where(criterio)
-            .ToListAsync();
-
+        return criterio != null ?
+            await contexto.Clientes.Where(criterio).ToListAsync() :
+            await contexto.Clientes.ToListAsync();
     }
 }

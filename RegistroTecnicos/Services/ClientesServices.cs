@@ -106,4 +106,12 @@ public class ClientesServices
             await contexto.Clientes.Where(criterio).ToListAsync() :
             await contexto.Clientes.ToListAsync();
     }
+    public async Task<List<Clientes>> ListarConTecnicos()
+    {
+        await using var contexto = await DbFactory.CreateDbContextAsync();
+        return await contexto.Clientes
+            .Include(c => c.Tecnicos) // Incluir los datos del técnico asignado
+            .ToListAsync();
+    }
+
 }

@@ -2,6 +2,7 @@
 @inject ClientesServices clienteService
 @inject NavigationManager navigationManager
 @inject ToastService toastService
+@inject TecnicoService tecnicoService
 @rendermode InteractiveServer
 
 <PageTitle>Eliminar Cliente</PageTitle>
@@ -32,6 +33,7 @@
                                             <ul class="list-unstyled">
                                                 <li><strong>ClienteId:</strong> @clientes.ClienteId</li>
                                                 <li><strong>Nombres:</strong> @clientes.Nombres</li>
+                                                <li><strong>Tecnico:</strong> @clientes.Tecnicos?.Nombres</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -64,10 +66,12 @@
     [Parameter]
     public int ClienteId { get; set; }
     public Clientes? clientes { get; set; }
+    public Tecnicos? tecnico { get; set; }
+    public List<Tecnicos> ListaTecnicos { get; set; } = new List<Tecnicos>();
 
     protected override async Task OnInitializedAsync()
     {
-        // Validar el parámetro y buscar el cliente.
+      
         if (ClienteId > 0)
         {
             clientes = await clienteService.Buscar(ClienteId);
@@ -95,6 +99,6 @@
 
     public void Retroceder()
     {
-        navigationManager.NavigateTo("/Cliente/Index");
+        navigationManager.NavigateTo("/Clientes/Index");
     }
 }

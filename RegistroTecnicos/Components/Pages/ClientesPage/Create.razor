@@ -1,129 +1,140 @@
 ﻿@page "/Cliente/Create"
-@using RegistroTecnicos.Models
-@inject ClientesServices clienteService
+@inject ClientesServices clientesService
 @inject NavigationManager navigationManager
-@inject ToastService toastService
-@inject TecnicoService tecnicoService
-@using Microsoft.AspNetCore.Components.Forms
-@using Microsoft.AspNetCore.Components
+@inject TecnicoService tecnicosService
+@rendermode InteractiveServer
 
-<EditForm Model="clientes" OnValidSubmit="Guardar">
+<PageTitle>Registro de clientes</PageTitle>
+
+<div>
+    @if (!string.IsNullOrEmpty(MensajeError))
+    {
+        <div class="alert alert-danger">@MensajeError</div>
+    }
+</div>
+
+<EditForm Model="Cliente" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center">
+                <h5 class="card-title">Registro de clientes</h5>
+            </div>
+            <div class="card-body">
+                <!-- ClienteId -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>ClienteId</strong></label>
+                    <InputNumber class="form-control" @bind-Value="Cliente.ClienteId" readonly />
+                </div>
 
-    <div class="card-header bg-primary text-center text-white py-2 rounded">
-        <h3 style="font-weight: bold;">Registro de Clientes</h3>
-    </div>
+                <!-- Nombres -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>Nombres</strong></label>
+                    <InputText class="form-control" @bind-Value="Cliente.Nombres" />
+                   
+                </div>
 
-    <div class="card-body">
-         @* ClienteId *@
-        <div class="mb-3">
-            <label for="ClienteId" class="form-label">ClienteId:</label>
-            <InputNumber @bind-Value="clientes.ClienteId" class="form-control" />
-        </div>
+                <!-- Dirección -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>Dirección</strong></label>
+                    <InputText class="form-control" @bind-Value="Cliente.Direccion" />
+                </div>
 
-        @* Fechalngreso *@
-        <div class="mb-3">
-            <label for="Fechalngreso" class="form-label">Fechalngreso:</label>
-            <InputDate @bind-Value="clientes.Fechalngreso" class="form-control" />
-        </div>
+                <!-- Fecha de ingreso -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>Fecha de Ingreso</strong></label>
+                    <InputDate class="form-control" @bind-Value="Cliente.Fechalngreso" />
+                </div>
 
-         @* Nombres *@
-        <div class="mb-3">
-            <label for="Nombres" class="form-label">Nombres:</label>
-            <InputText @bind-Value="clientes.Nombres" class="form-control" />
-        </div>
+                <!-- Rnc -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>RNC</strong></label>
+                    <InputText class="form-control" @bind-Value="Cliente.Rnc" />
+                </div>
 
-         @* Direccion *@
-        <div class="mb-3">
-            <label for="Direccion" class="form-label">Direccion :</label>
-            <InputText @bind-Value="clientes.Direccion" class="form-control" />
-        </div>
+                <!-- Límite de crédito -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>Límite crédito</strong></label>
+                    <InputNumber class="form-control" @bind-Value="Cliente.LimiteCredito" />
+                </div>
 
-         @* Rnc *@
-        <div class="mb-3">
-            <label for="Rnc" class="form-label">Rnc :</label>
-            <InputText @bind-Value="clientes.Rnc" class="form-control" />
-        </div>
+                <!-- Lista de técnicos encargados -->
+                <div class="mb-3">
+                    <label><strong>Técnico encargado</strong></label>
+                    <InputSelect class="form-control form-select" @bind-Value="Cliente.TecnicoId">
+                        <option value="0" selected disabled>Seleccione un Técnico</option>
+                        @foreach (var tecnico in ListaTecnicos)
+                        {
+                            <option value="@tecnico.TecnicoId">@tecnico.Nombres</option>
+                        }
+                    </InputSelect>
+                </div>
 
-         @* LimiteCredito *@
-        <div class="mb-3">
-            <label for="LimiteCredito" class="form-label">LimiteCredito :</label>
-            <InputNumber @bind-Value="clientes.LimiteCredito" class="form-control" />
-        </div>
-
-        @* TecnicoId (con InputSelect) *@
-        <div class="mb-3">
-            <label for="TecnicoId" class="form-label">Técnico:</label>
-            <InputSelect @bind-Value="clientes.TecnicoId" class="form-control">
-                <option value="" disabled>-- Seleccione un técnico --</option>
-                @foreach (var tecnico in ListaTecnicos)
-                {
-                    <option value="@tecnico.TecnicoId">@tecnico.Nombres</option>
-                }
-            </InputSelect>
-        </div>
-    </div>
-
-    <div class="card-footer d-flex justify-content-lg-center text-center">
-        <div class="btn-group">
-            <button type="button" class="btn btn-outline-primary ml-2" @onclick="Nuevo">
-                <span class="bi bi-plus"></span> Nuevo
-            </button>
-            <button type="submit" class="btn btn-outline-success ml-2">
-                <span class="bi bi-check-circle-fill"></span> Guardar
-            </button>
-            <button type="button" class="btn btn-outline-danger" @onclick="Retroceder">
-                <span class="bi bi-arrow-bar-left"></span> Retroceder
-            </button>
+                <!-- Footer -->
+                <div class="card-footer mt-2 text-center">
+                    <button type="button" class="btn btn-outline-success" @onclick="Nuevo">Nuevo</button>
+                    <button type="submit" class="btn btn-primary bi bi-floppy">Guardar</button>
+                    <a href="/Cliente" class="btn btn-secondary"><span class="bi bi-arrow-left"></span> Retroceder</a>
+                </div>
+            </div>
         </div>
     </div>
 </EditForm>
 
-@code {
-    public Clientes clientes { get; set; } = new Clientes();
+@code
+{
+    [Parameter]
+    public Clientes? Cliente { get; set; } = new Clientes();
+    public Tecnicos? tecnico { get; set; }
     public List<Tecnicos> ListaTecnicos { get; set; } = new List<Tecnicos>();
-    public Tecnicos tecnicos { get; set; } = new Tecnicos();
-
-    public async Task Nuevo()
-    {
-        clientes = new Clientes();
-    }
-
-    public async Task<bool> Validar()
-    {
-        var clientesExistentes = await clienteService.Listar(c => 
-            c.Nombres.ToLower() == clientes.Nombres.ToLower() && 
-            c.ClienteId != clientes.ClienteId);
-
-        return clientesExistentes.Count > 0;
-    }
-
-    public async Task Guardar()
-    {
-        if (await Validar())
-        {
-            return;
-        }
-
-        var guardado = await clienteService.Guardar(clientes);
-        if (guardado)
-        {
-            Nuevo();
-            Retroceder();
-        }
-        else
-        {
-            // Manejo de error si no se guardó correctamente
-        }
-    }
-
-    public void Retroceder()
-    {
-        navigationManager.NavigateTo("/Cliente/Index");
-    }
 
     protected override async Task OnInitializedAsync()
     {
+        ListaTecnicos = await tecnicosService.Listar(c => c.TecnicoId > 0);
+    }
+
+    public string MensajeError { get; set; } = string.Empty;
+
+    // Método para limpiar los campos
+    public void Nuevo()
+    {
+        Cliente = new Clientes();
+        MensajeError = string.Empty;
+    }
+
+    private async Task Guardar()
+    {
+        if (await ValidarNombre())
+        {
+            MensajeError = "Ya existe un cliente con ese nombre.";
+            return;
+        }
+        if (await ValidarRnc())
+        {
+            MensajeError = "Ya existe un cliente con ese RNC.";
+            return;
+        }
         
+        if (string.IsNullOrEmpty(Cliente.Nombres))
+        {
+            MensajeError = "El campo Nombres no puede estar vacío.";
+            return;
+        }
+
+        var creado = await clientesService.Guardar(Cliente);
+        if (creado)
+        {
+            navigationManager.NavigateTo("/Clientes/Index");
+        }
+    }
+    
+    public async Task<bool> ValidarNombre()
+    {
+        return await clientesService.ExisteNombreClientes(Cliente.Nombres, Cliente.ClienteId);
+    }
+
+    public async Task<bool> ValidarRnc()
+    {
+        return await clientesService.ExisteRncClientes(Cliente.Rnc, Cliente.ClienteId);
     }
 }

@@ -22,7 +22,6 @@
                 <div class="mb-3">
                     <label class="form-label"><strong>Nombres</strong></label>
                     <InputText class="form-control" @bind-Value="clientes.Nombres" />
-                   
                 </div>
 
                 <!-- Dirección -->
@@ -76,7 +75,7 @@
     [Parameter]
     public int ClienteId { get; set; }
     public Models.Clientes clientes { get; set; } = new Models.Clientes();
-    private bool Existe = false;
+    private bool Existe; // No es necesario inicializarlo en false, ya lo es por defecto
     public List<Tecnicos> ListaTecnicos { get; set; } = new List<Tecnicos>();
 
     protected override async Task OnInitializedAsync()
@@ -103,13 +102,10 @@
     {
         if (!await Validar())
         {
-           
             return;
         }
 
-        
-        
-        
+        // Falta lógica para guardar
     }
 
     public void Retroceder()

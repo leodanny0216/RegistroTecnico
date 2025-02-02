@@ -23,10 +23,8 @@ namespace RegistroTecnicos.Models
 
         // TecnicoId is likely a foreign key for a related entity
         
-
         [ForeignKey("Tecnicos")]
         public int TecnicoId { get; set; }
         public Tecnicos? Tecnicos { get; set; }
-
     }
 }

@@ -1,0 +1,129 @@
+﻿@page "/Tickets/Create"
+@inject TicketService ticketsService
+@inject NavigationManager navigationManager
+@inject TecnicoService tecnicosService
+@inject ClientesServices clientesService
+@rendermode InteractiveServer
+
+<PageTitle>Registro de Tickets</PageTitle>
+
+<div>
+    @if (!string.IsNullOrEmpty(MensajeError))
+    {
+        <div class="alert alert-danger">@MensajeError</div>
+    }
+</div>
+
+<EditForm Model="Ticket" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center">
+                <h5 class="card-title">Registro de Tickets</h5>
+            </div>
+            <div class="card-body">
+                <!-- TicketId -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>TicketId</strong></label>
+                    <InputNumber class="form-control" @bind-Value="Ticket.TicketId" readonly />
+                </div>
+
+                <!-- Fecha -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>Fecha</strong></label>
+                    <InputDate class="form-control" @bind-Value="Ticket.Fecha" />
+                </div>
+
+                <!-- Prioridad -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>Prioridad</strong></label>
+                    <InputText class="form-control" @bind-Value="Ticket.Prioridad" />
+                </div>
+
+                <!-- ClienteId -->
+                <div class="mb-3">
+                    <label><strong>Cliente</strong></label>
+                    <InputSelect class="form-control form-select" @bind-Value="Ticket.ClienteId">
+                        <option value="0" selected disabled>Seleccione un cliente</option>
+                        @foreach (var cliente in ListaClientes)
+                        {
+                            <option value="@cliente.ClienteId">@cliente.Nombres</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <!-- Asunto -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>Asunto</strong></label>
+                    <InputText class="form-control" @bind-Value="Ticket.Asunto" />
+                </div>
+
+                <!-- Descripcion -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>Descripción</strong></label>
+                    <InputTextArea class="form-control" @bind-Value="Ticket.Descripcion" />
+                </div>
+
+                <!-- TiempoInvertido -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>Tiempo Invertido (minutos)</strong></label>
+                    <InputNumber class="form-control" @bind-Value="Ticket.TiempoInvertido" />
+                </div>
+
+                <!-- TecnicoId -->
+                <div class="mb-3">
+                    <label><strong>Técnico</strong></label>
+                    <InputSelect class="form-control form-select" @bind-Value="Ticket.TecnicoId">
+                        <option value="0" selected disabled>Seleccione un técnico</option>
+                        @foreach (var tecnico in ListaTecnicos)
+                        {
+                            <option value="@tecnico.TecnicoId">@tecnico.Nombres</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <!-- Footer -->
+                <div class="card-footer mt-2 text-center">
+                    <button type="button" class="btn btn-outline-success" @onclick="Nuevo">Nuevo</button>
+                    <button type="submit" class="btn btn-primary bi bi-floppy">Guardar</button>
+                    <a href="/Tickets" class="btn btn-secondary"><span class="bi bi-arrow-left"></span> Retroceder</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code
+{
+    private Tickets Ticket { get; set; } = new Tickets();
+    private List<Tecnicos> ListaTecnicos { get; set; } = new List<Tecnicos>();
+    private List<Clientes> ListaClientes { get; set; } = new List<Clientes>();
+    private string MensajeError { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListaTecnicos = await tecnicosService.Listar(c => c.TecnicoId > 0);
+        ListaClientes = await clientesService.Listar(c => c.ClienteId > 0);
+    }
+
+    public void Nuevo()
+    {
+        Ticket = new Tickets();
+        MensajeError = string.Empty;
+    }
+
+    private async Task Guardar()
+    {
+        if (string.IsNullOrEmpty(Ticket.Asunto))
+        {
+            MensajeError = "El campo Asunto no puede estar vacío.";
+            return;
+        }
+
+        var creado = await ticketsService.Guardar(Ticket);
+        if (creado)
+        {
+            navigationManager.NavigateTo("/Tickets");
+        }
+    }
+}

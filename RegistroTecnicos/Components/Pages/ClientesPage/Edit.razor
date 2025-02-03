@@ -1,0 +1,115 @@
+﻿@page "/Cliente/Edit/{ClienteId:int}"
+@inject ClientesServices clienteService
+@inject NavigationManager navigationManager
+@inject ToastService toastService
+@rendermode InteractiveServer
+
+<EditForm Model="clientes" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center">
+                <h5 class="card-title">Registro de clientes</h5>
+            </div>
+            <div class="card-body">
+                <!-- ClienteId -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>ClienteId</strong></label>
+                    <InputNumber class="form-control" @bind-Value="clientes.ClienteId" readonly />
+                </div>
+
+                <!-- Nombres -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>Nombres</strong></label>
+                    <InputText class="form-control" @bind-Value="clientes.Nombres" />
+                </div>
+
+                <!-- Dirección -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>Dirección</strong></label>
+                    <InputText class="form-control" @bind-Value="clientes.Direccion" />
+                </div>
+
+                <!-- Fecha de ingreso -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>Fecha de Ingreso</strong></label>
+                    <InputDate class="form-control" @bind-Value="clientes.Fechalngreso" />
+                </div>
+
+                <!-- Rnc -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>RNC</strong></label>
+                    <InputText class="form-control" @bind-Value="clientes.Rnc" />
+                </div>
+
+                <!-- Límite de crédito -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>Límite crédito</strong></label>
+                    <InputNumber class="form-control" @bind-Value="clientes.LimiteCredito" />
+                </div>
+
+                <!-- Lista de técnicos encargados -->
+                <div class="mb-3">
+                    <label><strong>Técnico encargado</strong></label>
+                    <InputSelect class="form-control form-select" @bind-Value="clientes.TecnicoId">
+                        <option value="0" selected disabled>Seleccione un Técnico</option>
+                        @foreach (var tecnico in ListaTecnicos)
+                        {
+                            <option value="@tecnico.TecnicoId">@tecnico.Nombres</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <!-- Footer -->
+                <div class="card-footer mt-2 text-center">
+                    <button type="button" class="btn btn-outline-success" @onclick="Nuevo">Nuevo</button>
+                    <button type="submit" class="btn btn-primary bi bi-floppy">Guardar</button>
+                    <a href="/Cliente" class="btn btn-secondary"><span class="bi bi-arrow-left"></span> Retroceder</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int ClienteId { get; set; }
+    public Models.Clientes clientes { get; set; } = new Models.Clientes();
+    private bool Existe; // No es necesario inicializarlo en false, ya lo es por defecto
+    public List<Tecnicos> ListaTecnicos { get; set; } = new List<Tecnicos>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        clientes = await clienteService.Buscar(ClienteId) ?? new Models.Clientes();
+    }
+
+    public async Task<bool> Validar()
+    {
+        var existeCliente = await clienteService.Listar(c =>
+            c.Nombres.ToLower() == clientes.Nombres.ToLower() &&
+            c.ClienteId != clientes.ClienteId);
+
+        return !existeCliente.Any();
+    }
+
+    public void Nuevo()
+    {
+        clientes = new Models.Clientes();
+        Existe = false;
+    }
+
+    public async Task Guardar()
+    {
+        if (!await Validar())
+        {
+            return;
+        }
+
+        // Falta lógica para guardar
+    }
+
+    public void Retroceder()
+    {
+        navigationManager.NavigateTo("/Cliente/Index");
+    }
+}

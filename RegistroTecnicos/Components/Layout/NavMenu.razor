@@ -1,24 +1,33 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿<div class="top-row ps-3 navbar navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">RegistroTecnicos</a>
+        <a class="navbar-brand" href="#">RegistroTecnicos</a>
     </div>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+<input type="checkbox" title="Navigation menu" class="navbar-toggler d-none" id="nav-toggle" />
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+<div class="nav-scrollable">
     <nav class="nav flex-column">
+        <!--Técnicos  -->
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="/Tecnico/Index" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                <span class="bi bi-house-door-fill" aria-hidden="true"></span> Tecnicos
+            </NavLink>
+        </div>
+
+        <!-- Clientes -->
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/Clientes/Index">
+                <span class="bi bi-plus-square-fill" aria-hidden="true"></span>Clientes
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="/Tecnico/Index">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Tecnicos
+            <NavLink class="nav-link" href="/Tickets/Index">
+                <span class="bi bi-plus-square-fill" aria-hidden="true"></span> Tickets
             </NavLink>
         </div>
+
+        
     </nav>
 </div>
-

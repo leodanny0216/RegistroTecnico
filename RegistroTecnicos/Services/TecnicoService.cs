@@ -70,5 +70,12 @@ public class TecnicoService(IDbContextFactory<Contexto> DbFactory)
             .Where(criterio)
             .ToListAsync();
     }
+    public async Task<List<Tecnicos>> ListarTecnicos()
+    {
+        await using var contexto = await DbFactory.CreateDbContextAsync();
+        return await contexto.Tecnicos
+            .AsNoTracking()
+            .ToListAsync();
+    }
 }
 

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RegistroTecnicos.Models;
 public class Tecnicos
@@ -11,4 +12,9 @@ public class Tecnicos
 
     [Required(ErrorMessage = "Llenar este campo es hobligatorio.")]
     public decimal? Sueldohora { get; set; }
+
+    public Clientes ? Clientes  { get; set; }
+
+
+    
 }

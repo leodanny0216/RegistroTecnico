@@ -1,0 +1,129 @@
+﻿@page "/Clientes/Index"
+@inject ClientesServices clienteService
+@inject TecnicoService tecnicoService
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Consulta de Clientes</PageTitle>
+
+<div class="container">
+    <div class="card-header bg-primary text-center text-white py-2 rounded">
+        <h3 class="font-weight-bold">Consulta de Clientes</h3>
+    </div>
+
+    <div class="row mb-3 align-items-end">
+        <div class="col-md-3">
+            <label for="Filtro" class="form-label">Filtrar por:</label>
+            <select @bind="filtro" class="form-select">
+                <option value="ID">ClienteId</option>
+                <option value="Nombres">Nombres</option>
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label for="ValorFiltro" class="form-label">Búsqueda:</label>
+            <div class="input-group">
+                <input @bind="valorFiltro" class="form-control" placeholder="Buscar" />
+                <button @onclick="Buscar" class="btn btn-outline-primary" type="button">
+                    <span class="bi bi-search"></span> Buscar
+                </button>
+            </div>
+        </div>
+
+        <div class="col-md-3 text-end">
+            <a href="/Cliente/Create" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Crear
+            </a>
+        </div>
+    </div>
+
+    <table class="table table-bordered text-center">
+        <thead class="bg-primary text-white">
+            <tr>
+                <th>ClienteId</th>
+                <th>Tecnico</th>
+                <th>Nombres</th>
+                <th>FechaIngreso</th>
+                <th>Direccion</th>
+                <th>Rnc</th>
+                <th>LimiteCredito</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (ListaClientes != null && ListaClientes.Any())
+            {
+                @foreach (var cliente in ListaClientes)
+                {
+                    <tr>
+                        <td>@cliente.ClienteId</td>
+                        <td>@cliente.Tecnicos?.Nombres</td> <!-- Muestra el nombre del técnico -->
+                        <td>@cliente.Nombres</td>
+                        <td>@cliente.Fechalngreso.()</td>
+                        <td>@cliente.Direccion</td>
+                        <td>@cliente.Rnc</td>
+                        <td>@cliente.LimiteCredito.ToString("C")</td>
+                        <td>
+                            <a href="/Cliente/Edit/@cliente.ClienteId" class="btn btn-outline-primary">
+                                <span class="bi bi-info-circle-fill"></span>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/Cliente/Delete/@cliente.ClienteId" class="btn btn-outline-danger">
+                                <span class="bi bi-trash-fill"></span>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    <div class="card-footer text-start">
+        <p>Total de Clientes: @ListaClientes.Count</p>
+    </div>
+</div>
+
+@code {
+    public List<Clientes> ListaClientes { get; set; } = new List<Clientes>();
+    public string filtro { get; set; } = "ID";
+    public string valorFiltro { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListaClientes = await clienteService.ListarConTecnicos(); // Carga clientes con técnicos
+    }
+
+    public async Task Buscar()
+    {
+        if (string.IsNullOrWhiteSpace(valorFiltro))
+        {
+            ListaClientes = await clienteService.ListarConTecnicos();
+        }
+        else
+        {
+            switch (filtro)
+            {
+                case "ID":
+                    if (int.TryParse(valorFiltro, out int clienteId))
+                    {
+                        ListaClientes = await clienteService.Listar(c => c.ClienteId == clienteId);
+                    }
+                    else
+                    {
+                        ListaClientes.Clear();
+                    }
+                    break;
+
+                case "Nombres":
+                    ListaClientes = await clienteService.Listar(c => c.Nombres.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase));
+                    break;
+
+                default:
+                    ListaClientes = await clienteService.ListarConTecnicos();
+                    break;
+            }
+        }
+    }
+}

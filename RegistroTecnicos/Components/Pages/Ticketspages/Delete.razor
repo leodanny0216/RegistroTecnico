@@ -1,0 +1,103 @@
+﻿@page "/Tickets/Delete/{TicketId:int}"
+@inject TicketService ticketService
+@inject NavigationManager navigationManager
+@inject ToastService toastService
+@inject TecnicoService tecnicoService
+@inject ClientesServices clienteService
+@rendermode InteractiveServer
+
+<PageTitle>Eliminar Ticket</PageTitle>
+
+<div class="container">
+    <div class="card shadow-header">
+        <div class="card-header bg-primary text-white text-center py-2 rounded">
+            <h3><strong>Eliminar Ticket</strong></h3>
+        </div>
+
+        @if (ticket != null)
+        {
+            <div class="card-header text-center">
+                <h3 class="text-danger">¿Estás seguro de que quieres eliminar este ticket?</h3>
+            </div>
+
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <div class="card shadow-lg">
+                            <div class="card-header">
+                                <h3 class="text-center"><strong>Datos del Ticket:</strong></h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="border-primary border-2 borde">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <ul class="list-unstyled">
+                                                <li><strong>TicketId:</strong> @ticket.TicketId</li>
+                                                <li><strong>Fecha:</strong> @ticket.Fecha.ToString("dd/MM/yyyy")</li>
+                                                <li><strong>Prioridad:</strong> @ticket.Prioridad</li>
+                                                <li><strong>Cliente:</strong> @ticket.Cliente?.Nombres</li>
+                                                <li><strong>Asunto:</strong> @ticket.Asunto</li>
+                                                <li><strong>Descripción:</strong> @ticket.Descripcion</li>
+                                                <li><strong>Tiempo Invertido:</strong> @ticket.TiempoInvertido horas</li>
+                                                <li><strong>Técnico:</strong> @ticket.Tecnicos?.Nombres</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer text-center">
+                <button type="button" class="btn btn-outline-danger" @onclick="EliminarTicket">
+                    <i class="bi bi-trash-fill"></i> Eliminar
+                </button>
+                <button type="button" class="btn btn-outline-primary" @onclick="Retroceder">
+                    <i class="bi bi-box-arrow-left"></i> Retroceder
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="card-body text-center">
+                <h5 class="text-danger">Ticket no encontrado.</h5>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int TicketId { get; set; }
+    public Tickets? ticket { get; set; }
+    public List<Tecnicos> ListaTecnicos { get; set; } = new List<Tecnicos>();
+    public List<Clientes> ListaClientes { get; set; } = new List<Clientes>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (TicketId > 0)
+        {
+            ticket = await ticketService.Buscar(TicketId);
+        }
+    }
+
+    public async Task EliminarTicket()
+    {
+        if (ticket == null)
+        {
+            return;
+        }
+
+        if (await ticketService.Eliminar(TicketId))
+        {
+            Retroceder();
+        }
+    }
+
+    public void Retroceder()
+    {
+        navigationManager.NavigateTo("/Tickets/Index");
+    }
+}

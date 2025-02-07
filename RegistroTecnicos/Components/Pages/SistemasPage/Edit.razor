@@ -1,0 +1,92 @@
+﻿@page "/Sistemas/Edit/{SistemaId:int}"
+@inject SistemasService SistemaService
+@inject NavigationManager navigation
+@rendermode InteractiveServer
+
+<PageTitle>Editar Sistema</PageTitle>
+<div>
+    @if (!string.IsNullOrEmpty(MensajeError))
+    {
+        <div class="alert alert-danger">@MensajeError</div>
+    }
+</div>
+<EditForm Model="sistema" OnValidSubmit="Modificar">
+    <DataAnnotationsValidator />
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center">
+                <h1><strong>Editar Sistema</strong></h1>
+            </div>
+            <div class="card-body">
+
+                @*Id*@
+                <label for="id" class="form-label"><strong>SistemaId</strong></label>
+                <InputNumber id="id" class="form-control" @bind-Value="sistema.SistemaId" readonly></InputNumber>
+
+                @*Descripcion*@
+                <label for="Descripcion" class="form-label"><strong>Descripción</strong></label>
+                <InputText id="Descripcion" class="form-control" @bind-Value="sistema.Descripcion"></InputText>
+                <ValidationMessage For="@(()=> sistema.Descripcion)"></ValidationMessage>
+
+                @*Complejidad*@
+                <label for="Complejidad" class="form-label"><strong>Complejidad</strong></label>
+                <InputText id="Complejidad" class="form-control" @bind-Value="sistema.Complejidad"></InputText>
+                <ValidationMessage For="@(()=> sistema.Complejidad)"></ValidationMessage>
+
+                @*Footer*@
+                <div class="card-footer">
+                    <button type="button" class="btn btn-info text-white bi bi-arrow-90deg-left" @onclick="Volver"> Volver</button>
+                    <button type="submit" class="btn btn-success bi bi-pencil-square"> Modificar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int SistemaId { get; set; }
+    public string MensajeError { get; set; } = string.Empty;
+    public Sistemas sistema = new Sistemas();
+
+    protected override async Task OnInitializedAsync()
+    {
+        sistema = await SistemaService.Buscar(SistemaId) ?? new Sistemas();
+    }
+
+    public async Task<bool> Validar()
+    {
+        var encontrado = await SistemaService.Buscar(sistema.SistemaId);
+        if (encontrado != null && encontrado.SistemaId != sistema.SistemaId)
+        {
+            MensajeError = "Este ID ya existe";
+            return false;
+        }
+        return true;
+    }
+
+    public async Task Modificar()
+    {
+        if (string.IsNullOrEmpty(sistema.Descripcion))
+        {
+            MensajeError = "La descripción no puede estar vacía.";
+            return;
+        }
+
+        if (await Validar())
+        {
+            var resultado = await SistemaService.Guardar(sistema);
+            sistema = new Sistemas();
+            Volver();
+        }
+        else
+        {
+            MensajeError = "Error al modificar este registro, el ID ya existe.";
+        }
+    }
+
+    public void Volver()
+    {
+        navigation.NavigateTo("Sistemas/Index");
+    }
+}

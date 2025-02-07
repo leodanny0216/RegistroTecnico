@@ -1,0 +1,95 @@
+﻿@page "/Sistemas/Create"
+@inject SistemasService SistemaService
+@inject TecnicoService tecnicoService
+@inject NavigationManager navigation
+@rendermode InteractiveServer
+
+<PageTitle>Create</PageTitle>
+<EditForm Model="sistema" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="container bg-light">
+        <div class="card shadow">
+            <div class="card-header text-center bg-primary">
+                <h5 class="card-title text-white"> Crear Sistema</h5>
+            </div>
+
+            <div class="card-body">
+
+                @*SistemaId *@
+                <div class="mb-3">
+                    <label class="form-label"><strong>SistemaId</strong></label>
+                    <InputNumber id="id" class="form-control" @bind-Value="sistema.SistemaId" readonly></InputNumber>
+                </div>
+
+                @*Descripcion*@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Descripcion</strong></label>
+                    <InputText id="Descripcion" class="form-control" @bind-Value="sistema.Descripcion" />
+                    <ValidationMessage For="@(() => sistema.Descripcion)" />
+                </div>
+
+                @*Complejidad*@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Complejidad</strong></label>
+                    <InputText id="Complejidad" class="form-control" @bind-Value="sistema.Complejidad" />
+                    <ValidationMessage For="@(() => sistema.Complejidad)" />
+                </div>
+
+                @*  Footer  *@
+                <div class="card-footer text-center mt-2">
+                    <button type="button" class="btn btn-outline-primary" @onclick="Nuevo"><i class="bi bi-plus"></i> Nuevo </button>
+                    <button type="submit" class="btn btn-outline-success"><i class="bi bi-check-circle-fill"></i> Guardar</button>
+                    <a href="Sistemas/Index" class="btn btn-outline-danger"> <i class="bi bi-arrow-bar-left"></i> Retroceder</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (!string.IsNullOrEmpty(MensajeError))
+    {
+        <div class="alert alert-danger">@MensajeError</div>
+    }
+</EditForm>
+
+@code {
+    public class Sistemas
+    {
+        public int SistemaId { get; set; }
+        public string Descripcion { get; set; } = string.Empty;
+        public string Complejidad { get; set; } = string.Empty;
+    }
+
+    public Sistemas sistema { get; set; } = new Sistemas();
+    public string MensajeError { get; set; } = string.Empty;
+
+    public async Task<bool> Validar()
+    {
+        var existe = await SistemaService.Buscar(sistema.SistemaId);
+        if (existe != null)
+        {
+            MensajeError = "Este ID ya existe";
+            return false;
+        }
+        return true;
+    }
+
+    public async Task Guardar()
+    {
+        if (await Validar())
+        {
+            await SistemaService.Guardar(sistema);
+            sistema = new Sistemas();
+            Volver();
+        }
+    }
+
+    public void Volver()
+    {
+        navigation.NavigateTo("Sistemas/Index");
+    }
+
+    public void Nuevo()
+    {
+        sistema = new Sistemas();
+    }
+}

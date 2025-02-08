@@ -22,18 +22,25 @@
                     <InputNumber id="id" class="form-control" @bind-Value="sistema.SistemaId" readonly></InputNumber>
                 </div>
 
-                @*Descripcion*@
+                @* @Descripcion@ *@
                 <div class="mb-3">
                     <label class="form-label"><strong>Descripcion</strong></label>
                     <InputText id="Descripcion" class="form-control" @bind-Value="sistema.Descripcion" />
                     <ValidationMessage For="@(() => sistema.Descripcion)" />
                 </div>
 
-                @*Complejidad*@
+                @* @Complejidad@ *@
                 <div class="mb-3">
                     <label class="form-label"><strong>Complejidad</strong></label>
                     <InputText id="Complejidad" class="form-control" @bind-Value="sistema.Complejidad" />
                     <ValidationMessage For="@(() => sistema.Complejidad)" />
+                </div>
+
+                @* @Nombre@ *@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Nombre</strong></label>
+                    <InputText id="Nombre" class="form-control" @bind-Value="sistema.Nombre" />
+                    <ValidationMessage For="@(() => sistema.Nombre)" />
                 </div>
 
                 @*  Footer  *@
@@ -56,16 +63,12 @@
     public int SistemaId { get; set; }
     public Sistemas sistema = new Sistemas();
     public string MensajeError { get; set; } = string.Empty;
+    private bool existe = false;
 
     public async Task<bool> Validar()
     {
-        var existe = await sistemaService.Buscar(sistema.SistemaId);
-        if (existe != null)
-        {
-            MensajeError = "Este ID ya existe";
-            return false;
-        }
-        return true;
+        existe = await sistemaService.Existe(sistema.SistemaId);
+        return existe;
     }
 
     public async Task Guardar()
@@ -80,16 +83,13 @@
             navigation.NavigateTo("Sistemas/Index");
         }
     }
-
     
     public void Volver(){
         navigation.NavigateTo("Sistemas/Index");
     }
-    
-
 
     public void Nuevo()
     {
         sistema = new Sistemas();
-    }
+    }
 }

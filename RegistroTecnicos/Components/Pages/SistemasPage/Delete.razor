@@ -63,13 +63,20 @@
 
     public async Task Eliminar()
     {
-        if (sistema != null)
+        if (sistema == null)
         {
-            var eliminado = await SistemaService.Eliminar(SistemaId);
-            if (eliminado)
-            {
-                Volver();
-            }
+
+            return;
+        }
+
+        if (await SistemaService.Eliminar(SistemaId))
+        {
+
+            Volver();
+        }
+        else
+        {
+
         }
     }
 

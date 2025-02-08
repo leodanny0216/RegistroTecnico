@@ -1,5 +1,5 @@
 ﻿@page "/Sistemas/Create"
-@inject SistemasService SistemaService
+@inject SistemasService sistemaService
 @inject TecnicoService tecnicoService
 @inject NavigationManager navigation
 @rendermode InteractiveServer
@@ -52,19 +52,14 @@
 </EditForm>
 
 @code {
-    public class Sistemas
-    {
-        public int SistemaId { get; set; }
-        public string Descripcion { get; set; } = string.Empty;
-        public string Complejidad { get; set; } = string.Empty;
-    }
-
-    public Sistemas sistema { get; set; } = new Sistemas();
+    [Parameter]
+    public int SistemaId { get; set; }
+    public Sistemas sistema = new Sistemas();
     public string MensajeError { get; set; } = string.Empty;
 
     public async Task<bool> Validar()
     {
-        var existe = await SistemaService.Buscar(sistema.SistemaId);
+        var existe = await sistemaService.Buscar(sistema.SistemaId);
         if (existe != null)
         {
             MensajeError = "Este ID ya existe";
@@ -77,16 +72,21 @@
     {
         if (await Validar())
         {
-            await SistemaService.Guardar(sistema);
-            sistema = new Sistemas();
-            Volver();
+            return;
+        }
+        var guardado = await sistemaService.Guardar(sistema);
+        if(guardado)
+        {
+            navigation.NavigateTo("Sistemas/Index");
         }
     }
 
-    public void Volver()
-    {
+    
+    public void Volver(){
         navigation.NavigateTo("Sistemas/Index");
     }
+    
+
 
     public void Nuevo()
     {

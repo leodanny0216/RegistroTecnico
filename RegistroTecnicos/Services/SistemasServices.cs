@@ -9,7 +9,7 @@ namespace RegistroTecnicos.Services
 {
     public class SistemasService(IDbContextFactory<Contexto> DbFactory)
     {
-        // Método para evitar que existan dos sistemas con el mismo nombre
+       
         public async Task<bool> BuscarNombre(int Id, string nombre)
         {
             await using var contexto = await DbFactory.CreateDbContextAsync();

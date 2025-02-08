@@ -1,0 +1,105 @@
+﻿@page "/Sistemas/Index"
+@inject SistemasService SistemaService
+@inject NavigationManager navigation
+@rendermode InteractiveServer
+
+<div class="container card shadow-lg">
+    <div class="card-header text-center">
+        <h3><strong>Consulta de Sistemas</strong></h3>
+    </div>
+
+    @*Filtro*@
+    <div class="row text-right">
+        <div class="col-md-3">
+            <label for="filtro" class="form-label"><strong>Filtrar por:</strong></label>
+            <InputSelect id="filtro" class="form-select" @bind-Value="filtro">
+                <option value="SistemaId">Sistema ID</option>
+                <option value="Descripcion">Descripción</option>
+                <option value="Complejidad">Complejidad</option>
+            </InputSelect>
+        </div>
+
+        @*Busqueda*@
+        <div class="col-md-6">
+            <label for="valorFiltro" class="form-label"><strong>Búsqueda:</strong></label>
+            <div class="input-group">
+                <InputText id="valorFiltro" @bind-Value="valorFiltro" class="form-control" placeholder="Buscar" />
+                <button @onclick="Buscar" class="btn btn-success bi bi-search" type="button"> Buscar</button>
+            </div>
+        </div>
+
+        @*Crear button*@
+        <div class="col-md-3 d-flex align-items-end justify-content-md-end mt-3 mt-md-0">
+            <a href="/Sistemas/Create" class="btn btn-success"> <i class="bi bi-plus-circle"></i> Crear </a>
+        </div>
+    </div>
+
+    @*Tabla*@
+    <div class="card-body">
+        <table class="table table-light table-bordered">
+            <thead class="table-striped text-center">
+                <tr>
+                    <th>Sistema ID</th>
+                    <th>Descripción</th>
+                    <th>Complejidad</th>
+                    <th>Editar</th>
+                    <th>Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var sistema in sistemasLista)
+                {
+                    <tr>
+                        <td class="text-center">@sistema.SistemaId</td>
+                        <td class="text-center">@sistema.Descripcion</td>
+                        <td class="text-center">@sistema.Complejidad</td>
+
+                        <td class="text-center">
+                            <a href="/Sistemas/Edit/@sistema.SistemaId" class="btn btn-outline-warning"> <i class=" bi bi-pencil-square"></i></a>
+                        </td>
+                        <td class="text-center">
+                            <a href="/Sistemas/Delete/@sistema.SistemaId" class="btn btn-outline-danger"> <i class="bi bi-trash3"></i> </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    public List<Sistemas> sistemasLista { get; set; } = new List<Sistemas>();
+    public string filtro = "SistemaId";
+    public string valorFiltro = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        sistemasLista = await SistemaService.Listar(a => true);
+    }
+
+    public async Task Buscar()
+    {
+        if (!string.IsNullOrWhiteSpace(valorFiltro))
+        {
+            switch (filtro)
+            {
+                case "SistemaId":
+                    if (int.TryParse(valorFiltro, out int id))
+                    {
+                        sistemasLista = await SistemaService.Listar(s => s.SistemaId == id);
+                    }
+                    break;
+                case "Descripcion":
+                    sistemasLista = await SistemaService.Listar(s => s.Descripcion.ToLower().Contains(valorFiltro.ToLower()));
+                    break;
+                case "Complejidad":
+                    sistemasLista = await SistemaService.Listar(s => s.Complejidad.ToLower().Contains(valorFiltro.ToLower()));
+                    break;
+            }
+        }
+        else
+        {
+            sistemasLista = await SistemaService.Listar(a => true);
+        }
+    }
+}

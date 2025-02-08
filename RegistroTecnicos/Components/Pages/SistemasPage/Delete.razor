@@ -1,0 +1,80 @@
+﻿@page "/Sistemas/Delete/{SistemaId:int}"
+@using RegistroTecnicos.Models
+@using RegistroTecnicos.Modelsss
+@using RegistroTecnicos.Services
+@inject SistemasService SistemaService
+@inject NavigationManager navigation
+@rendermode InteractiveServer
+
+<PageTitle>Eliminar Sistema</PageTitle>
+<EditForm Model="sistema" OnValidSubmit="Eliminar">
+    <DataAnnotationsValidator />
+    <div class="container bg-light">
+        <div class="card shadow">
+            <div class="card-header bg-primary">
+                <h3 class="card-title text-center text-white">Eliminar Sistemas</h3>
+            </div>
+        </div>
+
+        @* Body *@
+        <div class="card-body">
+            <h4 class="text-danger bg-light">¿Estás seguro de que deseas eliminar este Sistema?</h4>
+            <div class="mb-1"></div>
+            <div class="container bg-light mt-4 me-auto">
+                <div class="card shadow">
+                    <h3 class="card-header card-title text-black"><strong>Datos del Sistema</strong></h3>
+                    @* Datos *@
+                    <div class="card-body">
+                        @if (sistema != null)
+                        {
+                            <p class="mb-1"><strong>SistemaId:</strong> @sistema.SistemaId</p>
+                            <p class="mb-1"><strong>Descripción:</strong> @sistema.Descripcion</p>
+                            <p class="mb-1"><strong>Complejidad:</strong> @sistema.Complejidad</p>
+                        }
+                        else
+                        {
+                            <p class="text-danger"><strong>¡No hay un sistema asociado!</strong></p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* Footer *@
+        <div class="card-footer">
+            <button type="button" class="btn btn-outline-danger bi bi-trash" @onclick="Eliminar">Eliminar</button>
+            <button type="button" class="btn btn-outline-primary bi bi-box-arrow-left" @onclick="Volver">Volver</button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int SistemaId { get; set; }
+    public Sistemas? sistema { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (SistemaId > 0)
+        {
+            sistema = await SistemaService.Buscar(SistemaId);
+        }
+    }
+
+    public async Task Eliminar()
+    {
+        if (sistema != null)
+        {
+            var eliminado = await SistemaService.Eliminar(SistemaId);
+            if (eliminado)
+            {
+                Volver();
+            }
+        }
+    }
+
+    public void Volver()
+    {
+        navigation.NavigateTo("Sistemas/Index");
+    }
+}

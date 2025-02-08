@@ -8,7 +8,7 @@
         <h3><strong>Consulta de Sistemas</strong></h3>
     </div>
 
-    @*Filtro*@
+    @* @Filtro@ *@
     <div class="row text-right">
         <div class="col-md-3">
             <label for="filtro" class="form-label"><strong>Filtrar por:</strong></label>
@@ -19,7 +19,7 @@
             </InputSelect>
         </div>
 
-        @*Busqueda*@
+       @*  @Busqueda@ *@
         <div class="col-md-6">
             <label for="valorFiltro" class="form-label"><strong>Búsqueda:</strong></label>
             <div class="input-group">
@@ -28,13 +28,13 @@
             </div>
         </div>
 
-        @*Crear button*@
+        @* @ Crear button @ *@
         <div class="col-md-3 d-flex align-items-end justify-content-md-end mt-3 mt-md-0">
             <a href="/Sistemas/Create" class="btn btn-success"> <i class="bi bi-plus-circle"></i> Crear </a>
         </div>
     </div>
 
-    @*Tabla*@
+   @*  @Tabla@ *@
     <div class="card-body">
         <table class="table table-light table-bordered">
             <thead class="table-striped text-center">
@@ -42,6 +42,7 @@
                     <th>Sistema ID</th>
                     <th>Descripción</th>
                     <th>Complejidad</th>
+                    <th>Nombre</th>
                     <th>Editar</th>
                     <th>Eliminar</th>
                 </tr>
@@ -53,6 +54,7 @@
                         <td class="text-center">@sistema.SistemaId</td>
                         <td class="text-center">@sistema.Descripcion</td>
                         <td class="text-center">@sistema.Complejidad</td>
+                        <td class="text-center">@sistema.Nombre</td>
 
                         <td class="text-center">
                             <a href="/Sistemas/Edit/@sistema.SistemaId" class="btn btn-outline-warning"> <i class=" bi bi-pencil-square"></i></a>
@@ -100,6 +102,6 @@
         else
         {
             sistemasLista = await SistemaService.Listar(a => true);
-        }
-    }
+        }
+    }
 }
